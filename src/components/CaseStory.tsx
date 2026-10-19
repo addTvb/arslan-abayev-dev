@@ -13,6 +13,18 @@ type CaseStoryProps = {
   index: number;
 };
 
+const STEP_DURATION = 0.38;
+/** Accumulated wheel delta (px) required to take one step. */
+const WHEEL_INTENT = 90;
+/** Cap a single wheel event so one hard flick can't jump the threshold alone. */
+const WHEEL_DELTA_CAP = 48;
+/** After a step, ignore further wheel/touch for this long (kills trackpad inertia). */
+const STEP_COOLDOWN_MS = 820;
+const SWIPE_INTENT = 56;
+
+/** Only one case can capture wheel/swipe at a time. */
+let activeCaseId: string | null = null;
+
 export function CaseStory({ project, index }: CaseStoryProps) {
   const rootRef = useRef<HTMLElement>(null);
 
@@ -24,8 +36,10 @@ export function CaseStory({ project, index }: CaseStoryProps) {
 
     mm.add(
       {
-        isDesktop: "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
-        isMobile: "(max-width: 1023px) and (prefers-reduced-motion: no-preference)",
+        isDesktop:
+          "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
+        isMobile:
+          "(max-width: 1023px) and (prefers-reduced-motion: no-preference)",
         reduceMotion: "(prefers-reduced-motion: reduce)",
       },
       (context) => {
@@ -63,6 +77,10 @@ export function CaseStory({ project, index }: CaseStoryProps) {
 
         root.setAttribute("data-case-active", "true");
 
+        const total = steps.length;
+        const headerOffset = isDesktop ? 80 : 72;
+        const slideY = isMobile ? 16 : 22;
+
         const sizeStages = () => {
           const tallestStep = Math.max(
             ...steps.map((step) => step.scrollHeight),
@@ -74,9 +92,6 @@ export function CaseStory({ project, index }: CaseStoryProps) {
 
           if (visual) {
             if (isMobile) {
-              visual.style.height = "auto";
-              visual.style.minHeight = "0";
-              // Size to the tallest visible panel content.
               const tallestPanel = Math.max(
                 ...panels.map((panel) => panel.scrollHeight),
                 220,
@@ -92,90 +107,302 @@ export function CaseStory({ project, index }: CaseStoryProps) {
         };
 
         gsap.set(steps, {
-          autoAlpha: 1,
-          y: 0,
+          autoAlpha: 0,
+          y: slideY,
           position: "absolute",
           top: 0,
           left: 0,
           width: "100%",
+          pointerEvents: "none",
+          zIndex: 0,
         });
         gsap.set(panels, {
-          autoAlpha: 1,
+          autoAlpha: 0,
           position: "absolute",
           top: 0,
           left: 0,
           width: "100%",
+          pointerEvents: "none",
+          zIndex: 0,
         });
-        sizeStages();
-
-        gsap.set(steps, { autoAlpha: 0, y: isMobile ? 12 : 20 });
-        gsap.set(steps[0], { autoAlpha: 1, y: 0 });
-        gsap.set(panels, { autoAlpha: 0 });
-        if (panels[0]) gsap.set(panels[0], { autoAlpha: 1 });
+        gsap.set(steps[0], {
+          autoAlpha: 1,
+          y: 0,
+          pointerEvents: "auto",
+          zIndex: 2,
+        });
+        if (panels[0]) {
+          gsap.set(panels[0], {
+            autoAlpha: 1,
+            pointerEvents: "auto",
+            zIndex: 2,
+          });
+        }
         gsap.set(stepLabels, { opacity: 0.35 });
         if (stepLabels[0]) gsap.set(stepLabels[0], { opacity: 1 });
         gsap.set(dots, { opacity: 0.35, scale: 0.85 });
         if (dots[0]) gsap.set(dots[0], { opacity: 1, scale: 1 });
-        gsap.set(progressBars, { scaleX: 0, transformOrigin: "left center" });
+        gsap.set(progressBars, {
+          scaleX: total > 1 ? 0 : 1,
+          transformOrigin: "left center",
+        });
+        sizeStages();
 
-        const headerOffset = isDesktop ? 80 : 72;
-        const scrollDistance = isMobile
-          ? Math.max(window.innerHeight * steps.length * 0.95, 1600)
-          : Math.max(window.innerHeight * (steps.length + 0.35), 2800);
+        let current = 0;
+        /** capturing = case owns input; released = page scroll may leave the pin */
+        let mode: "idle" | "capturing" | "released" = "idle";
+        let tween: gsap.core.Timeline | null = null;
+        let animating = false;
+        let lockedUntil = 0;
+        let wheelAcc = 0;
+        let touchStartY = 0;
+        let touchActive = false;
 
-        const setActiveDot = (activeIndex: number) => {
+        const applyChrome = (activeIndex: number) => {
+          steps.forEach((step, i) => {
+            const active = i === activeIndex;
+            step.style.pointerEvents = active ? "auto" : "none";
+            step.style.zIndex = active ? "2" : "0";
+          });
+          panels.forEach((panel, i) => {
+            const active = i === activeIndex;
+            panel.style.pointerEvents = active ? "auto" : "none";
+            panel.style.zIndex = active ? "2" : "0";
+          });
+          stepLabels.forEach((label, i) => {
+            gsap.set(label, { opacity: i === activeIndex ? 1 : 0.35 });
+          });
           dots.forEach((dot, i) => {
             gsap.set(dot, {
               opacity: i === activeIndex ? 1 : 0.35,
               scale: i === activeIndex ? 1 : 0.85,
             });
           });
+          const progress = total > 1 ? activeIndex / (total - 1) : 1;
+          gsap.to(progressBars, {
+            scaleX: progress,
+            duration: STEP_DURATION,
+            ease: "power2.out",
+            overwrite: true,
+          });
         };
 
-        const tl = gsap.timeline({
-          defaults: { ease: "none" },
-          scrollTrigger: {
-            trigger: root,
-            start: `top top+=${headerOffset}`,
-            end: () => `+=${scrollDistance}`,
-            pin: pinTarget,
-            scrub: isMobile ? 0.45 : 0.7,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-            preventOverlaps: true,
-            fastScrollEnd: true,
-            onRefresh: sizeStages,
-            onUpdate: (self) => {
-              const activeIndex = Math.min(
-                steps.length - 1,
-                Math.floor(self.progress * steps.length),
-              );
-              setActiveDot(activeIndex);
+        const paintStep = (activeIndex: number, fromY: number) => {
+          steps.forEach((step, i) => {
+            const active = i === activeIndex;
+            gsap.set(step, {
+              autoAlpha: active ? 1 : 0,
+              y: active ? 0 : fromY,
+              pointerEvents: active ? "auto" : "none",
+              zIndex: active ? 2 : 0,
+            });
+          });
+          panels.forEach((panel, i) => {
+            const active = i === activeIndex;
+            gsap.set(panel, {
+              autoAlpha: active ? 1 : 0,
+              pointerEvents: active ? "auto" : "none",
+              zIndex: active ? 2 : 0,
+            });
+          });
+          applyChrome(activeIndex);
+        };
+
+        const goTo = (nextIndex: number, direction: 1 | -1) => {
+          if (animating || nextIndex === current) return false;
+          if (nextIndex < 0 || nextIndex >= total) return false;
+
+          const prevIndex = current;
+          current = nextIndex;
+          animating = true;
+          lockedUntil = performance.now() + STEP_COOLDOWN_MS;
+          wheelAcc = 0;
+          tween?.kill();
+          applyChrome(nextIndex);
+
+          const outY = direction > 0 ? -slideY : slideY;
+          const inY = direction > 0 ? slideY : -slideY;
+
+          tween = gsap.timeline({
+            defaults: { duration: STEP_DURATION, ease: "power2.out" },
+            onComplete: () => {
+              animating = false;
+              tween = null;
             },
+          });
+
+          tween.to(steps[prevIndex], { autoAlpha: 0, y: outY }, 0);
+          if (panels[prevIndex]) {
+            tween.to(panels[prevIndex], { autoAlpha: 0 }, 0);
+          }
+          tween.fromTo(
+            steps[nextIndex],
+            { autoAlpha: 0, y: inY },
+            { autoAlpha: 1, y: 0 },
+            0,
+          );
+          if (panels[nextIndex]) {
+            tween.fromTo(
+              panels[nextIndex],
+              { autoAlpha: 0 },
+              { autoAlpha: 1 },
+              0,
+            );
+          }
+
+          return true;
+        };
+
+        const pinDistance = () => Math.max(window.innerHeight * 0.8, 520);
+
+        const engage = (fromBottom: boolean) => {
+          activeCaseId = project.id;
+          mode = "capturing";
+          root.setAttribute("data-case-engaged", "true");
+          animating = false;
+          lockedUntil = 0;
+          wheelAcc = 0;
+          tween?.kill();
+          if (fromBottom) {
+            current = total - 1;
+            paintStep(total - 1, -slideY);
+          } else {
+            current = 0;
+            paintStep(0, slideY);
+          }
+        };
+
+        const disengage = () => {
+          if (activeCaseId === project.id) activeCaseId = null;
+          root.removeAttribute("data-case-engaged");
+        };
+
+        const trigger = ScrollTrigger.create({
+          id: `case-${project.id}`,
+          trigger: root,
+          start: `top top+=${headerOffset}`,
+          end: () => `+=${pinDistance()}`,
+          pin: pinTarget,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          preventOverlaps: true,
+          onRefresh: sizeStages,
+          onEnter: () => engage(false),
+          onEnterBack: () => engage(true),
+          onLeave: () => {
+            mode = "idle";
+            disengage();
+          },
+          onLeaveBack: () => {
+            mode = "idle";
+            disengage();
           },
         });
 
-        progressBars.forEach((bar) => {
-          tl.to(bar, { scaleX: 1, duration: steps.length }, 0);
-        });
+        if (trigger.isActive) {
+          engage(trigger.progress > 0.5);
+        }
 
-        steps.forEach((_, stepIndex) => {
-          if (stepIndex === 0) return;
-          const at = stepIndex;
+        const isCapturing = () =>
+          mode === "capturing" && activeCaseId === project.id;
 
-          tl.to(steps[stepIndex - 1], { autoAlpha: 0, y: -14, duration: 0.8 }, at);
-          tl.to(steps[stepIndex], { autoAlpha: 1, y: 0, duration: 0.8 }, at);
+        const holdPinScroll = () => {
+          if (!isCapturing() || !trigger.isActive) return;
+          const y = trigger.start + 1;
+          if (Math.abs(window.scrollY - y) > 4) {
+            window.scrollTo({ top: y, behavior: "auto" });
+          }
+        };
 
-          if (panels[stepIndex - 1] && panels[stepIndex]) {
-            tl.to(panels[stepIndex - 1], { autoAlpha: 0, duration: 0.8 }, at);
-            tl.to(panels[stepIndex], { autoAlpha: 1, duration: 0.8 }, at);
+        const exitDown = () => {
+          mode = "released";
+          disengage();
+          animating = false;
+          wheelAcc = 0;
+          lockedUntil = performance.now() + 200;
+          window.scrollTo({ top: trigger.end + 32, behavior: "auto" });
+        };
+
+        const exitUp = () => {
+          mode = "released";
+          disengage();
+          animating = false;
+          wheelAcc = 0;
+          lockedUntil = performance.now() + 200;
+          window.scrollTo({
+            top: Math.max(0, trigger.start - 32),
+            behavior: "auto",
+          });
+        };
+
+        const commitDirection = (direction: 1 | -1) => {
+          holdPinScroll();
+          if (direction > 0) {
+            if (current < total - 1) goTo(current + 1, 1);
+            else exitDown();
+            return;
+          }
+          if (current > 0) goTo(current - 1, -1);
+          else exitUp();
+        };
+
+        const onWheel = (event: WheelEvent) => {
+          if (!isCapturing()) return;
+
+          event.preventDefault();
+          holdPinScroll();
+
+          const now = performance.now();
+          if (animating || now < lockedUntil) {
+            wheelAcc = 0;
+            return;
           }
 
-          if (stepLabels[stepIndex - 1] && stepLabels[stepIndex]) {
-            tl.to(stepLabels[stepIndex - 1], { opacity: 0.35, duration: 0.45 }, at);
-            tl.to(stepLabels[stepIndex], { opacity: 1, duration: 0.45 }, at);
-          }
-        });
+          // Normalize line/page deltas to pixel-ish values, then soften spikes.
+          let dy = event.deltaY;
+          if (event.deltaMode === 1) dy *= 16;
+          if (event.deltaMode === 2) dy *= window.innerHeight;
+          dy = Math.sign(dy) * Math.min(Math.abs(dy), WHEEL_DELTA_CAP);
+
+          wheelAcc += dy;
+
+          if (Math.abs(wheelAcc) < WHEEL_INTENT) return;
+
+          const direction: 1 | -1 = wheelAcc > 0 ? 1 : -1;
+          wheelAcc = 0;
+          commitDirection(direction);
+        };
+
+        const onTouchStart = (event: TouchEvent) => {
+          if (!isCapturing()) return;
+          touchActive = true;
+          touchStartY = event.touches[0]?.clientY ?? 0;
+        };
+
+        const onTouchMove = (event: TouchEvent) => {
+          if (!isCapturing() || !touchActive) return;
+          event.preventDefault();
+          holdPinScroll();
+        };
+
+        const onTouchEnd = (event: TouchEvent) => {
+          if (!isCapturing() || !touchActive) return;
+          touchActive = false;
+
+          const now = performance.now();
+          if (animating || now < lockedUntil) return;
+
+          const endY = event.changedTouches[0]?.clientY ?? touchStartY;
+          const delta = touchStartY - endY;
+          if (Math.abs(delta) < SWIPE_INTENT) return;
+
+          commitDirection(delta > 0 ? 1 : -1);
+        };
+
+        window.addEventListener("wheel", onWheel, { passive: false });
+        window.addEventListener("touchstart", onTouchStart, { passive: true });
+        window.addEventListener("touchmove", onTouchMove, { passive: false });
+        window.addEventListener("touchend", onTouchEnd, { passive: true });
 
         const onResize = () => {
           sizeStages();
@@ -185,9 +412,17 @@ export function CaseStory({ project, index }: CaseStoryProps) {
         window.addEventListener("orientationchange", onResize);
 
         return () => {
+          window.removeEventListener("wheel", onWheel);
+          window.removeEventListener("touchstart", onTouchStart);
+          window.removeEventListener("touchmove", onTouchMove);
+          window.removeEventListener("touchend", onTouchEnd);
           window.removeEventListener("resize", onResize);
           window.removeEventListener("orientationchange", onResize);
+          tween?.kill();
+          trigger.kill();
+          if (activeCaseId === project.id) activeCaseId = null;
           root.removeAttribute("data-case-active");
+          root.removeAttribute("data-case-engaged");
           gsap.set([steps, panels, stage, visual], { clearProps: "all" });
         };
       },
@@ -196,7 +431,7 @@ export function CaseStory({ project, index }: CaseStoryProps) {
     return () => {
       mm.revert();
     };
-  }, []);
+  }, [project.id]);
 
   const primaryImage = project.media.images[0] ?? null;
   const secondaryImage = project.media.images[1] ?? primaryImage;
@@ -216,7 +451,7 @@ export function CaseStory({ project, index }: CaseStoryProps) {
           <div className="flex min-w-0 flex-col">
             <div className="mb-4 flex flex-wrap items-baseline gap-x-4 gap-y-2">
               <span className="font-mono text-xs text-muted">0{index + 1}</span>
-              <h3 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight sm:text-4xl">
+              <h3 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
                 {project.name}
               </h3>
             </div>
@@ -242,7 +477,7 @@ export function CaseStory({ project, index }: CaseStoryProps) {
                   <span
                     key={`dot-${step.id}`}
                     data-case-dot
-                    className="h-1.5 w-1.5 rounded-full bg-accent"
+                    className="size-1.5 rounded-full bg-accent"
                     aria-hidden
                   />
                 ))}
@@ -254,18 +489,22 @@ export function CaseStory({ project, index }: CaseStoryProps) {
 
             <div
               data-case-stage
-              className="relative min-h-[18rem] overflow-hidden lg:min-h-[30rem]"
+              className="relative min-h-72 overflow-hidden lg:min-h-120"
             >
-              {project.story.map((step) => (
+              {project.story.map((step, stepIndex) => (
                 <div
                   key={step.id}
                   data-case-step
                   className="w-full"
+                  style={{
+                    pointerEvents: stepIndex === 0 ? "auto" : "none",
+                    zIndex: stepIndex === 0 ? 2 : 0,
+                  }}
                 >
                   <p className="font-mono text-xs tracking-[0.18em] text-accent uppercase">
                     {step.label}
                   </p>
-                  <h4 className="mt-3 max-w-xl font-[family-name:var(--font-display)] text-[1.45rem] leading-snug font-semibold tracking-tight sm:mt-4 sm:text-[1.85rem]">
+                  <h4 className="mt-3 max-w-xl font-display text-[1.45rem] leading-snug font-semibold tracking-tight sm:mt-4 sm:text-[1.85rem]">
                     {step.title}
                   </h4>
                   <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted sm:mt-5 sm:text-base">
@@ -276,7 +515,7 @@ export function CaseStory({ project, index }: CaseStoryProps) {
                     <ul className="mt-5 space-y-2.5 text-sm leading-relaxed text-foreground/90 sm:mt-6 sm:space-y-3">
                       {step.points.map((point) => (
                         <li key={point} className="flex gap-3">
-                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+                          <span className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" />
                           <span>{point}</span>
                         </li>
                       ))}
@@ -290,7 +529,7 @@ export function CaseStory({ project, index }: CaseStoryProps) {
                           key={metric.label}
                           className="rounded-xl border border-border bg-background-elevated/80 px-3 py-3 sm:px-4 sm:py-4"
                         >
-                          <p className="font-[family-name:var(--font-display)] text-xl font-semibold text-foreground sm:text-2xl">
+                          <p className="font-display text-xl font-semibold text-foreground sm:text-2xl">
                             {metric.value}
                           </p>
                           <p className="mt-1 text-[11px] leading-snug text-muted sm:mt-1.5 sm:text-xs">
@@ -319,7 +558,7 @@ export function CaseStory({ project, index }: CaseStoryProps) {
                       href={project.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-accent transition-opacity hover:opacity-80 sm:mt-7"
+                      className="relative z-10 mt-5 inline-flex items-center gap-2 text-sm font-medium text-accent underline-offset-4 transition-opacity hover:opacity-80 hover:underline sm:mt-7"
                     >
                       Open live product
                       <span aria-hidden>↗</span>
@@ -337,9 +576,11 @@ export function CaseStory({ project, index }: CaseStoryProps) {
                 />
               </div>
               <p className="mt-3 font-mono text-[10px] tracking-[0.16em] text-muted uppercase sm:text-[11px] lg:mt-4">
-                <span className="lg:hidden">Swipe up to walk the business case</span>
+                <span className="lg:hidden">
+                  Swipe once to open the next beat
+                </span>
                 <span className="hidden lg:inline">
-                  Scroll to walk the business case
+                  Scroll once to open the next beat
                 </span>
               </p>
             </div>
@@ -347,13 +588,17 @@ export function CaseStory({ project, index }: CaseStoryProps) {
 
           <div
             data-case-visual
-            className="relative w-full overflow-hidden lg:min-h-[30rem]"
+            className="relative w-full overflow-hidden lg:min-h-120"
           >
-            {project.story.map((step) => (
+            {project.story.map((step, stepIndex) => (
               <div
                 key={`${project.id}-${step.id}-panel`}
                 data-case-panel
                 className="w-full"
+                style={{
+                  pointerEvents: stepIndex === 0 ? "auto" : "none",
+                  zIndex: stepIndex === 0 ? 2 : 0,
+                }}
               >
                 <StoryPanel
                   project={project}
@@ -367,7 +612,7 @@ export function CaseStory({ project, index }: CaseStoryProps) {
         </div>
       </div>
 
-      {project.id === "whattofarm" && primaryImage && (
+      {project.media.video && (
         <div className="mx-auto max-w-6xl px-5 pb-10 sm:px-8">
           <div className="overflow-hidden rounded-2xl border border-border bg-background-elevated">
             <video
@@ -375,20 +620,16 @@ export function CaseStory({ project, index }: CaseStoryProps) {
               controls
               playsInline
               preload="metadata"
-              poster={primaryImage}
+              poster={primaryImage ?? undefined}
             >
-              <source src={project.media.video ?? undefined} type="video/webm" />
-              <source
-                src="/projects/whattofarm/whattofarm-live.mp4"
-                type="video/mp4"
-              />
+              <source src={project.media.video} type="video/webm" />
+              {project.media.video.endsWith(".webm") && (
+                <source
+                  src={project.media.video.replace(/\.webm$/, ".mp4")}
+                  type="video/mp4"
+                />
+              )}
             </video>
-            <p className="border-t border-border px-4 py-3 text-xs text-muted">
-              Add recording:{" "}
-              <code className="text-foreground/80">
-                public/projects/whattofarm/whattofarm-live.webm
-              </code>
-            </p>
           </div>
         </div>
       )}
@@ -414,7 +655,7 @@ function StoryPanel({
           Business brief
         </p>
         <div className="mt-auto">
-          <p className="font-[family-name:var(--font-display)] text-xl leading-snug font-semibold tracking-tight sm:text-3xl">
+          <p className="font-display text-xl leading-snug font-semibold tracking-tight sm:text-3xl">
             {project.panels.challengeTitle}
           </p>
           <p className="mt-4 text-sm leading-relaxed text-muted sm:mt-5 sm:text-base">
@@ -437,7 +678,7 @@ function StoryPanel({
         <ul className="mt-6 space-y-4 sm:mt-8 sm:space-y-5">
           {project.panels.solutionSteps.map((item, i) => (
             <li key={item} className="flex items-start gap-3 sm:gap-4">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-accent/40 text-xs text-accent">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-accent/40 text-xs text-accent">
                 {i + 1}
               </span>
               <span className="pt-1.5 text-sm text-foreground/90 sm:text-base">
@@ -460,7 +701,7 @@ function StoryPanel({
           Executive snapshot
         </p>
         <div className="mt-auto">
-          <p className="font-[family-name:var(--font-display)] text-xl leading-snug font-semibold tracking-tight sm:text-3xl">
+          <p className="font-display text-xl leading-snug font-semibold tracking-tight sm:text-3xl">
             {project.panels.outcomesTitle}
           </p>
           <p className="mt-4 text-sm leading-relaxed text-muted sm:mt-5 sm:text-base">
@@ -485,6 +726,18 @@ function StoryPanel({
           className="h-auto w-full object-cover object-top"
           sizes="(max-width: 1024px) 100vw, 560px"
         />
+        {project.url && stepId === "product" && (
+          <div className="border-t border-border px-4 py-3">
+            <a
+              href={project.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative z-10 inline-flex text-sm font-medium text-accent underline-offset-4 transition-opacity hover:opacity-80 hover:underline"
+            >
+              Visit live site ↗
+            </a>
+          </div>
+        )}
       </div>
     );
   }
@@ -504,7 +757,7 @@ function StoryPanel({
             href={project.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-6 inline-flex text-sm font-medium text-accent"
+            className="relative z-10 mt-6 inline-flex text-sm font-medium text-accent underline-offset-4 transition-opacity hover:opacity-80 hover:underline"
           >
             Visit live site ↗
           </a>
@@ -516,8 +769,14 @@ function StoryPanel({
 
 function PanelShell({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-[16rem] flex-col justify-between rounded-2xl border border-border bg-gradient-to-br from-accent/15 via-transparent to-transparent bg-background-elevated p-5 sm:min-h-[22rem] sm:p-9 lg:min-h-full lg:h-full">
-      {children}
+    <div className="relative flex min-h-64 flex-col justify-between overflow-hidden rounded-2xl border border-border bg-background-elevated p-5 sm:min-h-88 sm:p-9 lg:h-full">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-linear-to-br from-accent/15 via-transparent to-transparent"
+      />
+      <div className="relative flex min-h-0 flex-1 flex-col justify-between">
+        {children}
+      </div>
     </div>
   );
 }

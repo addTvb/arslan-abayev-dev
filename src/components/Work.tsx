@@ -10,12 +10,12 @@ export function Work() {
           <p className="font-mono text-xs tracking-[0.22em] text-accent uppercase">
             Selected work
           </p>
-          <h2 className="mt-4 max-w-3xl font-[family-name:var(--font-display)] text-4xl font-semibold tracking-tight sm:text-5xl">
+          <h2 className="mt-4 max-w-3xl font-display text-4xl font-semibold tracking-tight sm:text-5xl">
             Cases framed the way product leaders make decisions.
           </h2>
           <p className="mt-4 max-w-2xl text-muted">
             Not a library tour — each story shows the business constraint, the bet I
-            made, and the outcomes. Scroll a case on desktop to walk the narrative.
+            made, and the outcomes. One scroll (or swipe) opens the next beat — no in-between states.
           </p>
         </Reveal>
       </div>

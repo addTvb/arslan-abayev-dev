@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+set -e
+
+echo "→ pre-commit: lint + typecheck + build"
+
+npm run check

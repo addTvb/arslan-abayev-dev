@@ -12,6 +12,7 @@ export const site = {
   email: "arslan.web.dev@gmail.com",
   telegram: "https://t.me/addTvb",
   telegramHandle: "@addTvb",
+  linkedin: "https://www.linkedin.com/in/arslan-abayev-addtvb/",
   url: "https://arslan-abayev-dev.vercel.app",
   firstNinetyDays:
     "In the first 90 days I map the product bottlenecks, stabilize critical UI paths, and set a delivery rhythm the team can trust.",
@@ -87,7 +88,8 @@ export const projects: Project[] = [
         "/projects/whattofarm/scanner.png",
         "/projects/whattofarm/pair-chart.png",
       ],
-      video: "/projects/whattofarm/whattofarm-live.webm",
+      // Drop whattofarm-live.webm (and optional .mp4) into public/projects/whattofarm/ then set the path here.
+      video: null,
     },
     live: true,
     note: null,
@@ -152,7 +154,7 @@ export const projects: Project[] = [
   {
     id: "clipshub",
     name: "Clipshub",
-    url: null,
+    url: "https://clipshub-two.vercel.app/",
     period: "2023 — 2026",
     role: "Senior Frontend Developer / Team Lead · GGHub",
     summary:
@@ -163,8 +165,8 @@ export const projects: Project[] = [
       images: [],
       video: null,
     },
-    live: false,
-    note: "Private product — screenshots and screen recording coming soon.",
+    live: true,
+    note: "Screenshots and screen recording coming soon.",
     panels: {
       challengeTitle: "Ops and revenue lived inside a fragile UI surface.",
       challengeNote:

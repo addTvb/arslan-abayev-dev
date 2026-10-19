@@ -33,7 +33,7 @@ export function Reveal({ children, className = "", delayMs = 0 }: RevealProps) {
   return (
     <div
       ref={ref}
-      className={`reveal transition-[opacity,transform] duration-700 ease-out ${className}`}
+      className={`reveal transition duration-700 ease-out ${className}`}
     >
       {children}
     </div>

@@ -12,14 +12,14 @@ export function Contact() {
           <p className="font-mono text-xs tracking-[0.22em] text-accent uppercase">
             Contact
           </p>
-          <h2 className="mt-4 max-w-3xl font-[family-name:var(--font-display)] text-4xl font-semibold tracking-tight sm:text-5xl">
+          <h2 className="mt-4 max-w-3xl font-display text-4xl font-semibold tracking-tight sm:text-5xl">
             Looking for a remote product role where frontend owns outcomes — not
             just tickets.
           </h2>
           <p className="mt-5 max-w-2xl text-muted">{site.firstNinetyDays}</p>
           <p className="mt-3 max-w-xl text-sm text-muted">
-            Prefer Telegram for a quick intro. Email works for formal recruiting
-            threads.
+            Prefer Telegram for a quick intro. Email or LinkedIn for formal
+            recruiting threads.
           </p>
         </Reveal>
 
@@ -38,6 +38,14 @@ export function Contact() {
               className="inline-flex h-12 items-center rounded-full border border-border px-6 text-sm font-medium text-foreground transition-colors hover:border-accent/50 hover:bg-accent-soft"
             >
               {site.email}
+            </a>
+            <a
+              href={site.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-12 items-center rounded-full border border-border px-6 text-sm font-medium text-foreground transition-colors hover:border-accent/50 hover:bg-accent-soft"
+            >
+              LinkedIn
             </a>
           </div>
         </Reveal>

@@ -8,7 +8,7 @@ export function ProofStrip() {
         {proofPoints.map((item, index) => (
           <Reveal key={item.label} delayMs={index * 60}>
             <div className="px-5 py-8 sm:px-8">
-              <p className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              <p className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
                 {item.value}
               </p>
               <p className="mt-2 text-sm text-muted">{item.label}</p>

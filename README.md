@@ -4,8 +4,8 @@ Personal portfolio for **Arslan Abayev**, Senior Frontend Developer / Team Lead.
 
 The site is built as a product-facing one-pager: case stories framed around business outcomes (growth, retention, delivery), not a library demo list.
 
-**Live:** _add Vercel URL after deploy_  
-**Contact:** [@addTvb](https://t.me/addTvb) · [arslan.web.dev@gmail.com](mailto:arslan.web.dev@gmail.com)
+**Live:** [arslan-abayev-dev.vercel.app](https://arslan-abayev-dev.vercel.app)  
+**Contact:** [@addTvb](https://t.me/addTvb) · [arslan.web.dev@gmail.com](mailto:arslan.web.dev@gmail.com) · [LinkedIn](https://www.linkedin.com/in/arslan-abayev-addtvb/)
 
 ---
 
@@ -19,7 +19,7 @@ The site is built as a product-facing one-pager: case stories framed around busi
 
 ## Features
 
-- Dark, calm UI with scroll storytelling (GSAP ScrollTrigger pin + scrub)
+- Dark, calm UI with scroll storytelling (GSAP ScrollTrigger pin + discrete beats)
 - Mobile: same story flow via swipe/scroll, no overlapping steps
 - SEO baseline: metadata, Open Graph image, `sitemap.xml`, `robots.txt`
 - Content-driven: most copy lives in one file for fast iteration
@@ -35,7 +35,7 @@ The site is built as a product-facing one-pager: case stories framed around busi
 | Language | TypeScript |
 | UI | Tailwind CSS 4 |
 | Motion | GSAP + ScrollTrigger |
-| Fonts | Syne · Manrope · IBM Plex Mono |
+| Fonts | Montserrat · IBM Plex Mono |
 | Deploy target | Vercel |
 
 ---
@@ -85,10 +85,19 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000).
 
 ```bash
-npm run build   # production build
-npm run start   # serve production build
-npm run lint    # eslint
+npm run build      # production build
+npm run start      # serve production build
+npm run lint       # eslint
+npm run typecheck  # TypeScript
+npm run check      # lint + typecheck + build
 ```
+
+### Pre-commit checks
+
+Husky runs `npm run check` before every commit (lint, typecheck, production build).  
+If a check fails, the commit is blocked. To skip in an emergency: `HUSKY=0 git commit …`.
+
+After `npm install`, hooks are enabled automatically via the `prepare` script.
 
 ---
 

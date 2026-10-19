@@ -6,7 +6,7 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative mx-auto grid min-h-[calc(100svh-4rem)] max-w-6xl items-end gap-10 px-5 pb-16 pt-20 sm:px-8 sm:pb-24 sm:pt-24 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-10"
+      className="relative mx-auto grid min-h-[calc(100svh-4rem)] max-w-6xl items-end gap-10 px-5 pb-16 pt-20 sm:px-8 sm:pb-24 sm:pt-24 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-14"
     >
       <div className="relative z-10 min-w-0">
         <Reveal>
@@ -16,25 +16,25 @@ export function Hero() {
         </Reveal>
 
         <Reveal delayMs={80}>
-          <h1 className="max-w-4xl font-[family-name:var(--font-display)] text-[clamp(3.1rem,8vw,5.6rem)] leading-[0.92] font-semibold tracking-[-0.03em] text-foreground">
+          <h1 className="font-display text-[clamp(3.1rem,8vw,5.6rem)] leading-[0.92] font-semibold tracking-[-0.03em] text-foreground">
             {site.name}
           </h1>
         </Reveal>
 
         <Reveal delayMs={140}>
-          <p className="mt-5 max-w-2xl font-[family-name:var(--font-display)] text-xl text-muted sm:text-2xl">
+          <p className="mt-5 font-display text-xl text-muted sm:text-2xl">
             {site.role}
           </p>
         </Reveal>
 
         <Reveal delayMs={180}>
-          <p className="mt-6 max-w-xl text-base leading-relaxed text-foreground/90 sm:text-lg">
+          <p className="mt-6 max-w-3xl text-base leading-relaxed text-foreground/90 sm:text-lg">
             {site.tagline}
           </p>
         </Reveal>
 
         <Reveal delayMs={220}>
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted sm:text-base">
+          <p className="mt-4 max-w-3xl text-sm leading-relaxed text-muted sm:text-base">
             {site.focus}
           </p>
         </Reveal>
@@ -43,7 +43,7 @@ export function Hero() {
           <div className="mt-10 flex flex-wrap items-center gap-3">
             <a
               href="#work"
-              className="inline-flex h-12 items-center rounded-full bg-accent px-6 text-sm font-semibold text-white transition-[transform,opacity] hover:opacity-90 active:scale-[0.98]"
+              className="inline-flex h-12 items-center rounded-full bg-accent px-6 text-sm font-semibold text-white transition hover:opacity-90 active:scale-[0.98]"
             >
               See business cases
             </a>
@@ -65,20 +65,33 @@ export function Hero() {
         </Reveal>
       </div>
 
-      <Reveal delayMs={120} className="relative w-full lg:justify-self-end">
-        <div className="relative mx-auto w-full max-w-[28rem] sm:max-w-[34rem] lg:mx-0 lg:max-w-[38rem]">
-          <div className="pointer-events-none absolute -inset-10 rounded-full bg-accent/15 blur-3xl" />
-          <div className="relative overflow-hidden rounded-[2rem] bg-background-elevated ring-1 ring-border">
+      <Reveal
+        delayMs={120}
+        className="relative mx-auto w-full max-w-96 lg:mx-0 lg:w-auto lg:max-w-none lg:justify-self-end"
+      >
+        <div className="relative mx-auto w-full max-w-80 p-6 sm:max-w-96 lg:w-md lg:max-w-none">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-full bg-accent/35 blur-3xl"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-[18%] rounded-full bg-accent/45 blur-2xl"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute top-[12%] left-1/2 h-[60%] w-3/5 -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,var(--accent-glow),transparent_68%)]"
+          />
+          <div className="relative aspect-square overflow-hidden rounded-full bg-background-elevated shadow-[0_0_56px_-12px_var(--accent-glow)] ring-1 ring-accent/25">
             <Image
-              src="/me/arslan.jpg"
+              src="/me/ars.png"
               alt={`${site.name} — portrait`}
               width={768}
-              height={960}
+              height={768}
               priority
-              className="h-auto w-full object-cover object-[50%_18%]"
-              sizes="(max-width: 640px) 90vw, (max-width: 1024px) 34rem, 38rem"
+              className="size-full object-cover object-[50%_18%]"
+              sizes="(max-width: 640px) 20rem, (max-width: 1024px) 24rem, 28rem"
             />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/45 via-transparent to-transparent" />
           </div>
         </div>
       </Reveal>

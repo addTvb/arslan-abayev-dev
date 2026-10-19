@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Arslan Abayev — Portfolio
 
-## Getting Started
+Personal portfolio for **Arslan Abayev**, Senior Frontend Developer / Team Lead.
 
-First, run the development server:
+The site is built as a product-facing one-pager: case stories framed around business outcomes (growth, retention, delivery), not a library demo list.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+**Live:** _add Vercel URL after deploy_  
+**Contact:** [@addTvb](https://t.me/addTvb) · [arslan.web.dev@gmail.com](mailto:arslan.web.dev@gmail.com)
+
+---
+
+## Positioning
+
+- Frontend ownership for SaaS / analytics / growth-heavy products
+- Case format: challenge → bet → outcomes → proof
+- Open to remote Senior Frontend / Team Lead roles in product companies
+
+---
+
+## Features
+
+- Dark, calm UI with scroll storytelling (GSAP ScrollTrigger pin + scrub)
+- Mobile: same story flow via swipe/scroll, no overlapping steps
+- SEO baseline: metadata, Open Graph image, `sitemap.xml`, `robots.txt`
+- Content-driven: most copy lives in one file for fast iteration
+- Static-friendly Next.js App Router setup (Vercel-ready)
+
+---
+
+## Stack
+
+| Layer | Choice |
+| --- | --- |
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript |
+| UI | Tailwind CSS 4 |
+| Motion | GSAP + ScrollTrigger |
+| Fonts | Syne · Manrope · IBM Plex Mono |
+| Deploy target | Vercel |
+
+---
+
+## Project structure
+
+```text
+src/
+  app/                 # layout, page, SEO routes (sitemap, robots, OG image)
+  components/          # Hero, Work/CaseStory, Approach, Stack, Contact…
+  content/site.ts      # all portfolio copy, metrics, case stories
+public/
+  me/                  # portrait
+  projects/whattofarm/ # case screenshots / video slot
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Edit content
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Almost all text is in:
 
-## Learn More
+```text
+src/content/site.ts
+```
 
-To learn more about Next.js, take a look at the following resources:
+There you can update:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- hero / availability / focus
+- proof metrics
+- case stories (WhatToFarm, Clipshub)
+- leadership / leverage blocks
+- contacts and site URL (used by SEO metadata)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Clipshub media:** drop screenshots into `public/projects/clipshub/` and wire paths in `site.ts`.  
+**WhatToFarm video:** `public/projects/whattofarm/whattofarm-live.webm` or `.mp4`.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Local development
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+```bash
+npm run build   # production build
+npm run start   # serve production build
+npm run lint    # eslint
+```
+
+---
+
+## Deploy
+
+1. Import this repo in [Vercel](https://vercel.com/new)
+2. Framework preset: Next.js
+3. Set production domain
+4. Update `site.url` in `src/content/site.ts` to the final domain (affects canonical, sitemap, OG)
+
+---
+
+## Roadmap (SEO / content)
+
+- [ ] Final domain + Search Console
+- [ ] JSON-LD `Person`
+- [ ] Clipshub screenshots + short walkthrough
+- [ ] Image/CWV pass on production
+- [ ] Optional: dedicated case pages (`/work/...`)
+
+---
+
+## License
+
+Private portfolio project. Source is shared for deployment and review; please don’t copy the design/content as your own.

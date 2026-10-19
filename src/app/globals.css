@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+:root {
+  --background: #07090f;
+  --background-elevated: #0c111b;
+  --foreground: #e8edf7;
+  --muted: #8b95a8;
+  --border: rgba(232, 237, 247, 0.08);
+  --accent: #3d7aef;
+  --accent-soft: rgba(61, 122, 239, 0.14);
+  --accent-glow: rgba(61, 122, 239, 0.28);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-background-elevated: var(--background-elevated);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body), system-ui, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--foreground);
+}
+
+.site-shell {
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+}
+
+.site-shell::before {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(ellipse 80% 50% at 15% -10%, rgba(61, 122, 239, 0.18), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(61, 122, 239, 0.08), transparent 50%),
+    linear-gradient(180deg, #07090f 0%, #0a0e16 45%, #07090f 100%);
+}
+
+.site-shell::after {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.35;
+  background-image:
+    linear-gradient(rgba(232, 237, 247, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 237, 247, 0.03) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 20%, black, transparent);
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Before JS hydrates: keep only the first story beat visible to avoid overlap. */
+[data-case-stage],
+[data-case-visual] {
+  position: relative;
+}
+
+[data-case-step]:not(:first-child),
+[data-case-panel]:not(:first-child) {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+}
+
+[data-case-step]:first-child,
+[data-case-panel]:first-child {
+  position: relative;
+  width: 100%;
+}
+
+[data-case-active] [data-case-step],
+[data-case-active] [data-case-panel] {
+  position: absolute;
+  inset: auto auto auto 0;
+  top: 0;
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-case-step],
+  [data-case-panel],
+  [data-case-step]:not(:first-child),
+  [data-case-panel]:not(:first-child) {
+    position: relative !important;
+    inset: auto !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: none !important;
+  }
+}

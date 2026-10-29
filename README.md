@@ -10,6 +10,8 @@ The site is built as a product-facing portfolio: case stories framed around busi
 
 ---
 
+
+
 ## Positioning
 
 - Frontend ownership for SaaS / analytics / growth-heavy products
@@ -18,6 +20,8 @@ The site is built as a product-facing portfolio: case stories framed around busi
 - Bilingual: English (default, no URL prefix) · Russian (`/ru`)
 
 ---
+
+
 
 ## Features
 
@@ -31,17 +35,23 @@ The site is built as a product-facing portfolio: case stories framed around busi
 
 ---
 
+
+
 ## Stack
 
-| Layer | Choice |
-| --- | --- |
-| Framework | Next.js 16 (App Router) |
-| Language | TypeScript |
-| UI | Tailwind CSS 4 |
-| Fonts | Montserrat (latin + cyrillic) · IBM Plex Mono |
-| Deploy target | Vercel |
+
+| Layer         | Choice                                        |
+| ------------- | --------------------------------------------- |
+| Framework     | Next.js 16 (App Router)                       |
+| Language      | TypeScript                                    |
+| UI            | Tailwind CSS 4                                |
+| Fonts         | Montserrat (latin + cyrillic) · IBM Plex Mono |
+| Deploy target | Vercel                                        |
+
 
 ---
+
+
 
 ## Project structure
 
@@ -63,20 +73,7 @@ public/
 
 ---
 
-## Edit content
 
-| File | What |
-| --- | --- |
-| `src/content/site.ts` | Name, contacts, geo, YOE, keywords, GitHub/CV URLs, GSC code |
-| `src/content/en.ts` | English copy + case stories |
-| `src/content/ru.ts` | Russian copy + case stories |
-
-**GitHub / CV:** set `site.github` and `site.cvUrl` when ready — they appear in Contact and JSON-LD `sameAs`.  
-**Clipshub media:** drop screenshots into `public/projects/clipshub/` and wire paths in both dictionaries.  
-**WhatToFarm video:** `public/projects/whattofarm/whattofarm-live.webm` or `.mp4`.  
-**Search Console:** set `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` in Vercel env (or `site.googleSiteVerification`).
-
----
 
 ## Local development
 
@@ -95,6 +92,8 @@ npm run typecheck  # TypeScript
 npm run check      # lint + typecheck + build
 ```
 
+
+
 ### Pre-commit checks
 
 Husky runs `npm run check` before every commit.  
@@ -102,43 +101,7 @@ If a check fails, the commit is blocked. To skip in an emergency: `HUSKY=0 git c
 
 ---
 
-## Deploy
 
-1. Import this repo in [Vercel](https://vercel.com/new)
-2. Framework preset: Next.js
-3. Optional: set `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`
-4. When you have a custom domain: attach it in Vercel, then update `site.url` in `src/content/site.ts` (canonical, sitemap, OG)
-
----
-
-## SEO checklist (off-site)
-
-Do these after deploy — they matter as much as on-site SEO for recruiters:
-
-- [ ] [Google Search Console](https://search.google.com/search-console): add property → verify → submit `/sitemap.xml`
-- [ ] Bing Webmaster Tools (optional): import from GSC or verify separately
-- [ ] LinkedIn: headline = role + stack + remote; About + Featured link to this site; same metrics as cases
-- [ ] GitHub: public profile URL in `site.github`; pin relevant repos
-- [ ] Keep NAP consistent: name, email, LinkedIn, Telegram everywhere
-- [ ] Ask 2–3 colleagues for natural portfolio mentions/links
-- [ ] Custom domain + 301 from `*.vercel.app` + new GSC property (after content is stable)
-
-`*.vercel.app` is fine for indexing short-term; a personal domain is stronger for brand and trust.
-
----
-
-## Roadmap
-
-- [x] JSON-LD `Person` (+ WebSite / case CreativeWork)
-- [x] EN + RU locales + hreflang
-- [x] Dedicated case pages (`/work/...`)
-- [x] About / YOE signals for recruiters
-- [ ] Clipshub screenshots + short walkthrough
-- [ ] GitHub + CV URLs wired in `site.ts`
-- [ ] Final domain + Search Console verification live
-- [ ] Image/CWV pass review on production after media lands
-
----
 
 ## License
 

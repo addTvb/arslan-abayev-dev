@@ -216,12 +216,20 @@ export const en: Dictionary = {
         "Advertisers, creators, and internal ops running campaigns at volume",
       stack: ["React", "Next.js", "TypeScript", "Performance", "SaaS"],
       media: {
-        images: [],
-        imageAlts: [],
+        images: [
+          "/projects/clipshub/business-hero.png",
+          "/projects/clipshub/cpm-comparison.png",
+          "/projects/clipshub/creator-landing.png",
+        ],
+        imageAlts: [
+          "Clipshub business landing — Shorts and Reels ad placements with campaign CTA",
+          "Clipshub CPM comparison — platform rates vs Clipshub efficiency",
+          "Clipshub creator landing — earn by inserting sponsored offers into short-form video",
+        ],
         video: null,
       },
       live: true,
-      note: "Screenshots and screen recording coming soon. Drop files into public/projects/clipshub/ and wire paths here.",
+      note: null,
       panels: {
         challengeTitle: "Ops and revenue lived inside a fragile UI surface.",
         challengeNote:
@@ -275,8 +283,8 @@ export const en: Dictionary = {
         {
           id: "product",
           label: "04 · Product proof",
-          title: "Private SaaS — media coming next.",
-          body: "Screenshots and a short product walkthrough will land here. Until then, the story above is the operating model I bring to a product company.",
+          title: "Surfaces advertisers and creators actually use.",
+          body: "Business acquisition, CPM comparison tooling, and creator onboarding — the production UI that had to stay fast under campaign and video volume.",
         },
       ],
     },

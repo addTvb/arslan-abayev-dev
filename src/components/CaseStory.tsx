@@ -153,6 +153,32 @@ export function CaseStory({
         </div>
       </div>
 
+      {project.media.images.length > 1 && (
+        <div className="mx-auto mt-10 max-w-6xl px-5 sm:mt-14 sm:px-8">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {project.media.images.map((src, imageIndex) => (
+              <div
+                key={src}
+                className="overflow-hidden rounded-2xl border border-border bg-background-elevated"
+              >
+                <Image
+                  src={src}
+                  alt={
+                    project.media.imageAlts[imageIndex] ??
+                    `${project.name} product interface ${imageIndex + 1}`
+                  }
+                  width={1440}
+                  height={900}
+                  className="h-auto w-full object-cover object-top"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  quality={85}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {project.media.video && (
         <div className="mx-auto mt-10 max-w-6xl px-5 sm:mt-14 sm:px-8">
           <div className="overflow-hidden rounded-2xl border border-border bg-background-elevated">

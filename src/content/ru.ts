@@ -216,12 +216,20 @@ export const ru: Dictionary = {
         "Рекламодатели, креаторы и внутренняя ops-команда на объёмных кампаниях",
       stack: ["React", "Next.js", "TypeScript", "Performance", "SaaS"],
       media: {
-        images: [],
-        imageAlts: [],
+        images: [
+          "/projects/clipshub/business-hero.png",
+          "/projects/clipshub/cpm-comparison.png",
+          "/projects/clipshub/creator-landing.png",
+        ],
+        imageAlts: [
+          "Clipshub business-лендинг — размещения в Shorts и Reels с CTA кампании",
+          "Clipshub сравнение CPM — ставки платформ против эффективности Clipshub",
+          "Clipshub creator-лендинг — заработок на спонсорских офферах в short-form видео",
+        ],
         video: null,
       },
       live: true,
-      note: "Скриншоты и запись экрана скоро. Положите файлы в public/projects/clipshub/ и пропишите пути здесь.",
+      note: null,
       panels: {
         challengeTitle: "Ops и выручка жили внутри хрупкой UI-поверхности.",
         challengeNote:
@@ -275,8 +283,8 @@ export const ru: Dictionary = {
         {
           id: "product",
           label: "04 · Продуктовое доказательство",
-          title: "Private SaaS — медиа скоро.",
-          body: "Здесь появятся скриншоты и короткий walkthrough. Пока история выше — это операционная модель, которую я приношу в product-компанию.",
+          title: "Поверхности, которыми реально пользуются рекламодатели и креаторы.",
+          body: "Acquisition для бизнеса, сравнение CPM и онбординг креаторов — production UI, который должен оставаться быстрым при объёме кампаний и видео.",
         },
       ],
     },

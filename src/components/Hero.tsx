@@ -1,8 +1,17 @@
 import Image from "next/image";
 import { site } from "@/content/site";
+import type { Dictionary } from "@/content/types";
+import type { Locale } from "@/i18n/config";
 import { Reveal } from "@/components/Reveal";
 
-export function Hero() {
+type HeroProps = {
+  locale: Locale;
+  dict: Dictionary;
+};
+
+export function Hero({ locale, dict }: HeroProps) {
+  const displayName = site.nameLocalized[locale];
+
   return (
     <section
       id="top"
@@ -11,31 +20,31 @@ export function Hero() {
       <div className="relative z-10 min-w-0">
         <Reveal>
           <p className="mb-5 font-mono text-xs tracking-[0.22em] text-accent uppercase">
-            {site.availability}
+            {dict.hero.availability}
           </p>
         </Reveal>
 
         <Reveal delayMs={80}>
           <h1 className="font-display text-[clamp(3.1rem,8vw,5.6rem)] leading-[0.92] font-semibold tracking-[-0.03em] text-foreground">
-            {site.name}
+            {displayName}
           </h1>
         </Reveal>
 
         <Reveal delayMs={140}>
           <p className="mt-5 font-display text-xl text-muted sm:text-2xl">
-            {site.role}
+            {dict.hero.role}
           </p>
         </Reveal>
 
         <Reveal delayMs={180}>
           <p className="mt-6 max-w-3xl text-base leading-relaxed text-foreground/90 sm:text-lg">
-            {site.tagline}
+            {dict.hero.tagline}
           </p>
         </Reveal>
 
         <Reveal delayMs={220}>
           <p className="mt-4 max-w-3xl text-sm leading-relaxed text-muted sm:text-base">
-            {site.focus}
+            {dict.hero.focus}
           </p>
         </Reveal>
 
@@ -45,7 +54,7 @@ export function Hero() {
               href="#work"
               className="inline-flex h-12 items-center rounded-full bg-accent px-6 text-sm font-semibold text-white transition hover:opacity-90 active:scale-[0.98]"
             >
-              See business cases
+              {dict.hero.ctaCases}
             </a>
             <a
               href={site.telegram}
@@ -85,10 +94,11 @@ export function Hero() {
           <div className="relative aspect-square overflow-hidden rounded-full bg-background-elevated shadow-[0_0_56px_-12px_var(--accent-glow)] ring-1 ring-accent/25">
             <Image
               src="/me/ars.png"
-              alt={`${site.name} — portrait`}
+              alt={`${displayName} — portrait`}
               width={768}
               height={768}
               priority
+              fetchPriority="high"
               className="size-full object-cover object-[50%_18%]"
               sizes="(max-width: 640px) 20rem, (max-width: 1024px) 24rem, 28rem"
             />

@@ -1,11 +1,26 @@
 import { ImageResponse } from "next/og";
+import { getDictionary } from "@/content";
 import { site } from "@/content/site";
+import { isLocale, type Locale } from "@/i18n/config";
 
 export const alt = `${site.name} — ${site.role}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function Image() {
+type ImageProps = {
+  params: Promise<{ locale: string }>;
+};
+
+export default async function Image({ params }: ImageProps) {
+  const { locale: localeParam } = await params;
+  const locale: Locale = isLocale(localeParam) ? localeParam : "en";
+  const dict = getDictionary(locale);
+  const name = site.nameLocalized[locale];
+  const eyebrow =
+    locale === "ru" ? "Открыт к remote ролям" : "Open to remote roles";
+  const footer =
+    locale === "ru" ? "Рост · Retention · Поставка" : "Growth · Retention · Delivery";
+
   return new ImageResponse(
     (
       <div
@@ -29,7 +44,7 @@ export default function Image() {
             color: "#3d7aef",
           }}
         >
-          Open to remote roles
+          {eyebrow}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           <div
@@ -41,7 +56,7 @@ export default function Image() {
               lineHeight: 1,
             }}
           >
-            {site.name}
+            {name}
           </div>
           <div
             style={{
@@ -51,7 +66,7 @@ export default function Image() {
               maxWidth: 820,
             }}
           >
-            {site.role}
+            {dict.hero.role}
           </div>
         </div>
         <div
@@ -61,7 +76,7 @@ export default function Image() {
             color: "#8b95a8",
           }}
         >
-          Growth · Retention · Delivery
+          {footer}
         </div>
       </div>
     ),

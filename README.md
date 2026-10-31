@@ -29,8 +29,9 @@ The site is built as a product-facing portfolio: case stories framed around busi
 - EN + RU content, `hreflang`, locale-aware metadata
 - JSON-LD `Person` / `WebSite` / case `CreativeWork`
 - Dedicated case pages (`/work/[slug]`, `/ru/work/[slug]`)
-- SEO: Open Graph, `sitemap.xml`, `robots.txt`, Search Console verification hook
-- Content-driven dictionaries in `src/content/`
+- Blog (Velite + MDX): `/blog`, `/blog/[slug]` (+ `/ru/...`), RSS `/feed.xml`
+- SEO: Open Graph, `sitemap.xml`, `robots.txt`, JSON-LD, Search Console verification hook
+- Content-driven dictionaries in `src/content/` + MDX posts in `content/blog/`
 - Static-friendly Next.js App Router setup (Vercel-ready)
 
 ---

@@ -10,6 +10,7 @@ export const ru: Dictionary = {
   },
   nav: {
     work: "Кейсы",
+    blog: "Блог",
     about: "Обо мне",
     approach: "Подход",
     stack: "Рычаги",
@@ -18,6 +19,23 @@ export const ru: Dictionary = {
     closeMenu: "Закрыть меню",
     langEn: "EN",
     langRu: "RU",
+  },
+  blog: {
+    eyebrow: "Блог",
+    title: "Пишу про фронтенд, команду и продукт.",
+    subtitle:
+      "Простые заметки из практики: как делать интерфейсы, которые помогают бизнесу, и вести команду без лишней суеты.",
+    readMore: "Читать статью",
+    backToBlog: "К блогу",
+    minRead: "мин чтения",
+    draftBadge: "Черновик",
+    relatedTitle: "Похожие статьи",
+    tocTitle: "На этой странице",
+    writtenBy: "Автор",
+    publishedLabel: "Опубликовано",
+    updatedLabel: "Обновлено",
+    tagsLabel: "Темы",
+    empty: "Новые статьи скоро появятся.",
   },
   hero: {
     availability:

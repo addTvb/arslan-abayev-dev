@@ -1,7 +1,14 @@
 import { site } from "@/content/site";
 import type { Dictionary, Project } from "@/content/types";
 import type { Locale } from "@/i18n/config";
+import type { BlogPost } from "@/lib/blog";
 import { absoluteUrl } from "@/lib/urls";
+
+const difficultyToEducationalLevel = {
+  beginner: "Beginner",
+  intermediate: "Intermediate",
+  advanced: "Advanced",
+} as const;
 
 export function personJsonLd(locale: Locale, dict: Dictionary) {
   const sameAs: string[] = [site.linkedin, site.telegram];
@@ -80,6 +87,88 @@ export function caseStudyJsonLd(
     ...(project.media.images[0]
       ? { image: `${site.url}${project.media.images[0]}` }
       : {}),
+  };
+}
+
+export function blogPostingJsonLd(
+  locale: Locale,
+  post: BlogPost,
+  dict: Dictionary,
+) {
+  const url = absoluteUrl(locale, post.permalink);
+  const coverSrc = post.cover?.src;
+  const image = coverSrc
+    ? coverSrc.startsWith("http")
+      ? coverSrc
+      : `${site.url}${coverSrc}`
+    : `${site.url}/me/ars.png`;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.description,
+    datePublished: post.date,
+    dateModified: post.updated,
+    inLanguage: locale,
+    url,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": url,
+    },
+    image,
+    wordCount: post.metadata.wordCount,
+    keywords: post.tags,
+    educationalLevel:
+      difficultyToEducationalLevel[
+        post.difficulty as keyof typeof difficultyToEducationalLevel
+      ],
+    author: {
+      "@type": "Person",
+      name: site.nameLocalized[locale],
+      jobTitle: dict.hero.role,
+      url: absoluteUrl(locale),
+    },
+    creator: {
+      "@type": "Person",
+      name: site.name,
+    },
+    publisher: {
+      "@type": "Person",
+      name: site.name,
+      url: site.url,
+    },
+  };
+}
+
+export function blogBreadcrumbJsonLd(
+  locale: Locale,
+  post: BlogPost,
+  dict: Dictionary,
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: site.nameLocalized[locale],
+        item: absoluteUrl(locale),
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: dict.nav.blog,
+        item: absoluteUrl(locale, "/blog"),
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: post.title,
+        item: absoluteUrl(locale, post.permalink),
+      },
+    ],
   };
 }
 

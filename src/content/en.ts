@@ -10,6 +10,7 @@ export const en: Dictionary = {
   },
   nav: {
     work: "Work",
+    blog: "Blog",
     about: "About",
     approach: "Approach",
     stack: "Leverage",
@@ -18,6 +19,23 @@ export const en: Dictionary = {
     closeMenu: "Close menu",
     langEn: "EN",
     langRu: "RU",
+  },
+  blog: {
+    eyebrow: "Blog",
+    title: "Writing about frontend, teams, and product.",
+    subtitle:
+      "Practical notes from the work: building UI that helps the business, and leading a team without the noise.",
+    readMore: "Read article",
+    backToBlog: "Back to blog",
+    minRead: "min read",
+    draftBadge: "Draft",
+    relatedTitle: "Related reading",
+    tocTitle: "On this page",
+    writtenBy: "By",
+    publishedLabel: "Published",
+    updatedLabel: "Updated",
+    tagsLabel: "Topics",
+    empty: "New articles are on the way.",
   },
   hero: {
     availability:

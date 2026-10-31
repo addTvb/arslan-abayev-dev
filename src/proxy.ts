@@ -7,6 +7,7 @@ const PUBLIC_FILE = /\.[^/]+$/;
 const ROOT_METADATA_ROUTES = new Set([
   "/robots.txt",
   "/sitemap.xml",
+  "/feed.xml",
   "/icon",
   "/apple-icon",
   "/favicon.ico",

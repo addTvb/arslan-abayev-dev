@@ -11,6 +11,8 @@ type HeaderProps = {
   dict: Dictionary;
   /** Path without locale prefix, e.g. `/` or `/work/whattofarm`. */
   pathname?: string;
+  /** Per-locale path overrides for the language switcher (no locale prefix). */
+  localeSwitchPaths?: Partial<Record<Locale, string>>;
 };
 
 function socialClassName(accent?: boolean) {
@@ -19,19 +21,36 @@ function socialClassName(accent?: boolean) {
     : "rounded-full border border-border px-3 py-1.5 text-sm font-medium text-muted transition-colors hover:border-accent/50 hover:text-foreground";
 }
 
-export function Header({ locale, dict, pathname = "/" }: HeaderProps) {
+export function Header({
+  locale,
+  dict,
+  pathname = "/",
+  localeSwitchPaths,
+}: HeaderProps) {
   const [open, setOpen] = useState(false);
   const menuId = useId();
   const homeHref = localePath(locale, "/");
+  const blogHref = localePath(locale, "/blog");
   const sectionHref = (id: string) =>
     homeHref === "/" ? `/#${id}` : `${homeHref}#${id}`;
+  const switchHref = (target: Locale) =>
+    localePath(target, localeSwitchPaths?.[target] ?? pathname);
 
   const links = [
-    { href: sectionHref("work"), label: dict.nav.work },
-    { href: sectionHref("about"), label: dict.nav.about },
-    { href: sectionHref("approach"), label: dict.nav.approach },
-    { href: sectionHref("stack"), label: dict.nav.stack },
-    { href: sectionHref("contact"), label: dict.nav.contact },
+    { href: sectionHref("work"), label: dict.nav.work, externalNav: false },
+    { href: blogHref, label: dict.nav.blog, externalNav: true },
+    { href: sectionHref("about"), label: dict.nav.about, externalNav: false },
+    {
+      href: sectionHref("approach"),
+      label: dict.nav.approach,
+      externalNav: false,
+    },
+    { href: sectionHref("stack"), label: dict.nav.stack, externalNav: false },
+    {
+      href: sectionHref("contact"),
+      label: dict.nav.contact,
+      externalNav: false,
+    },
   ] as const;
 
   const socials = [
@@ -98,15 +117,25 @@ export function Header({ locale, dict, pathname = "/" }: HeaderProps) {
           </Link>
 
           <nav className="hidden items-center gap-7 text-sm text-muted lg:flex">
-            {links.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="transition-colors hover:text-foreground"
-              >
-                {link.label}
-              </a>
-            ))}
+            {links.map((link) =>
+              link.externalNav ? (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="transition-colors hover:text-foreground"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="transition-colors hover:text-foreground"
+                >
+                  {link.label}
+                </a>
+              ),
+            )}
           </nav>
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
@@ -115,7 +144,7 @@ export function Header({ locale, dict, pathname = "/" }: HeaderProps) {
               aria-label="Language"
             >
               <Link
-                href={localePath("en", pathname)}
+                href={switchHref("en")}
                 className={`rounded-full px-2.5 py-1 transition-colors ${
                   locale === "en"
                     ? "bg-accent text-white"
@@ -127,7 +156,7 @@ export function Header({ locale, dict, pathname = "/" }: HeaderProps) {
                 {dict.nav.langEn}
               </Link>
               <Link
-                href={localePath("ru", pathname)}
+                href={switchHref("ru")}
                 className={`rounded-full px-2.5 py-1 transition-colors ${
                   locale === "ru"
                     ? "bg-accent text-white"
@@ -203,21 +232,33 @@ export function Header({ locale, dict, pathname = "/" }: HeaderProps) {
                 className="mx-auto flex max-w-6xl flex-col gap-1 px-5 py-4"
                 inert={!open || undefined}
               >
-                {links.map((link) => (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    onClick={close}
-                    tabIndex={open ? undefined : -1}
-                    className="rounded-lg px-3 py-3 text-sm text-muted transition-colors hover:bg-accent-soft hover:text-foreground"
-                  >
-                    {link.label}
-                  </a>
-                ))}
+                {links.map((link) =>
+                  link.externalNav ? (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={close}
+                      tabIndex={open ? undefined : -1}
+                      className="rounded-lg px-3 py-3 text-sm text-muted transition-colors hover:bg-accent-soft hover:text-foreground"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      onClick={close}
+                      tabIndex={open ? undefined : -1}
+                      className="rounded-lg px-3 py-3 text-sm text-muted transition-colors hover:bg-accent-soft hover:text-foreground"
+                    >
+                      {link.label}
+                    </a>
+                  ),
+                )}
 
                 <div className="mt-3 flex gap-2 border-t border-border pt-4">
                   <Link
-                    href={localePath("en", pathname)}
+                    href={switchHref("en")}
                     hrefLang="en"
                     onClick={close}
                     tabIndex={open ? undefined : -1}
@@ -230,7 +271,7 @@ export function Header({ locale, dict, pathname = "/" }: HeaderProps) {
                     {dict.nav.langEn}
                   </Link>
                   <Link
-                    href={localePath("ru", pathname)}
+                    href={switchHref("ru")}
                     hrefLang="ru"
                     onClick={close}
                     tabIndex={open ? undefined : -1}

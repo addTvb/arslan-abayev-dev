@@ -45,6 +45,7 @@ export type Dictionary = {
   };
   nav: {
     work: string;
+    blog: string;
     about: string;
     approach: string;
     stack: string;
@@ -53,6 +54,22 @@ export type Dictionary = {
     closeMenu: string;
     langEn: string;
     langRu: string;
+  };
+  blog: {
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    readMore: string;
+    backToBlog: string;
+    minRead: string;
+    draftBadge: string;
+    relatedTitle: string;
+    tocTitle: string;
+    writtenBy: string;
+    publishedLabel: string;
+    updatedLabel: string;
+    tagsLabel: string;
+    empty: string;
   };
   hero: {
     availability: string;

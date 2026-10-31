@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
+    "content": "velite build --config velite.config.js",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "check": "npm run lint && npm run typecheck && npm run build",
@@ -13,9 +14,10 @@
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
-    "next": "16.4.2",
+    "next": "16.3.2",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "velite": "0.4.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
@@ -25,7 +27,7 @@
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
-    "eslint-config-next": "16.4.2",
+    "eslint-config-next": "16.3.2",
     "husky": "^9.1.7",
     "tailwindcss": "^4",
     "typescript": "^5"
